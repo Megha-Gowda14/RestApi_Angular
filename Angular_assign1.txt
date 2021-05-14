@@ -1,0 +1,358 @@
+//app.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+})
+export class AppComponent {
+  title = 'structure-restaurent';
+  
+  routes = [
+    { linkName: 'admin', url: 'admin' },
+    { linkName: 'user', url: 'user' },
+  ];
+  
+}
+
+
+//app.module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { AdminComponent } from './admin/admin.component';
+import { MenuComponent } from './menu/menu.component';
+import { RestaurantComponent } from './restaurant/restaurant.component';
+import { UserComponent } from './user/user.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { FormsModule } from '@angular/forms';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    AdminComponent,
+    MenuComponent,
+    RestaurantComponent,
+    UserComponent,
+    PageNotFoundComponent,
+  ],
+  imports: [BrowserModule, AppRoutingModule, FormsModule],
+  providers: [],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+
+
+
+//app.component.html
+<h1>Restaurent App</h1>
+
+<header>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header"></div>
+
+      <ul class="nav navbar-nav">
+        <li>
+          <a
+            (click)="route.displayRoute()"
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >Admin</a
+          >
+        </li>
+        <li><a routerLink="/user" routerLinkActive="active">User</a></li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<app-admin #route></app-admin>
+<!--<h1>Restaurent App</h1>
+<a *ngFor="let route of routes" [routerLink]="route.url">{{
+  route.linkName
+}}</a>-->
+
+<router-outlet></router-outlet>
+
+
+
+//app-routing.module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Route } from '@angular/router';
+import { AdminComponent } from './admin/admin.component';
+import { MenuComponent } from './menu/menu.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { RestaurantComponent } from './restaurant/restaurant.component';
+import { UserComponent } from './user/user.component';
+
+const routes: Route[] = [
+  { path: '', redirectTo: '/admin', pathMatch: 'full' },
+  {
+    path: 'admin',
+    component: AdminComponent,
+    children: [
+      { path: 'menu', component: MenuComponent },
+      { path: 'restaurent', component: RestaurantComponent },
+    ],
+  },
+
+  { path: 'user', component: UserComponent },
+  { path: '**', component: PageNotFoundComponent },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+
+
+
+//user.component.html
+<h1>List of all restaurents</h1>
+<div style="margin-left: 30px" *ngFor="let s of post">
+  <p>{{ s }}</p>
+</div>
+
+
+//user.component.ts
+import { Component, Input, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+  styleUrls: ['./user.component.css'],
+})
+export class UserComponent implements OnInit {
+  @Input() post: any[] = [];
+  constructor() {}
+
+  ngOnInit(): void {}
+}
+
+
+
+//resturant.component.html
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <input
+        #myrestaurent
+        type="text"
+        class="form-control"
+        [placeholder]="CreateRestaurent"
+        name="promenu"
+        [(ngModel)]="promenu"
+      />
+      <button class="btn btn-danger" (click)="onclick(myrestaurent)">
+        Create Restaurent
+      </button>
+
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th>Sr.No</th>
+            <th>Restaurent Name</th>
+            <th>Delete Restaurent</th>
+            <th>Edit Restaurent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of restaurentList; index as no">
+            <td>{{ no + 1 }}</td>
+            <td (click)="handleClick($event)">{{ item }}</td>
+            <td>
+              <button (click)="onDelete(no)" class="btn btn-success">
+                Remove Restaurent
+              </button>
+            </td>
+            <td>
+              <button (click)="onDelete(no)" class="btn btn-success">
+                Edit Restaurent
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-user [post]="restaurentList"></app-user>
+
+
+
+
+//restutant.component.ts
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-restaurant',
+  templateUrl: './restaurant.component.html',
+  styleUrls: ['./restaurant.component.css'],
+})
+export class RestaurantComponent implements OnInit {
+  CreateRestaurent: string = 'Enter Restaurent';
+  restaurentList = Array();
+  promenu = '';
+  successful_booking_msg = 'You have successfully booked the restaurent';
+
+  constructor() {}
+
+  ngOnInit(): void {}
+  onclick(promenu: { value: any }) {
+    if (promenu.value.length > 0) {
+      this.restaurentList.push(promenu.value);
+      promenu.value = '';
+    }
+  }
+
+  onDelete(del: number) {
+    this.restaurentList.splice(del, 1);
+  }
+
+  bookres() {
+    this.successful_booking_msg;
+  }
+  handleClick(event: any) {
+    if (event.view.getSelection().type !== 'Range') {
+      alert('You have booked succesfully');
+    }
+  }
+}
+
+
+
+
+//menu.component.html
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <input
+        #mymenu
+        type="text"
+        class="form-control"
+        [placeholder]="CreateMenu"
+      />
+      <button class="btn btn-danger" (click)="onclick(mymenu)">
+        Create Menu
+      </button>
+
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th>Sr.No</th>
+            <th>Menu Name</th>
+            <th>Delete Menu</th>
+            <th>Edit Menu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of menuList; index as no">
+            <td>{{ no + 1 }}</td>
+            <td>{{ item }}</td>
+            <td>
+              <button (click)="onDelete(no)" class="btn btn-success">
+                Delete Menu
+              </button>
+            </td>
+            <td>
+              <button (click)="onDelete(no)" class="btn btn-success">
+                Edit Menu
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+
+//menu.component.ts
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-menu',
+  templateUrl: './menu.component.html',
+  styleUrls: ['./menu.component.css'],
+})
+export class MenuComponent implements OnInit {
+  CreateMenu: string = 'Enter Menu';
+  //menuList = [];
+  menuList = Array();
+  constructor() {}
+
+  ngOnInit(): void {}
+
+  onclick(promenu: { value: any }) {
+    if (promenu.value.length > 0) {
+      this.menuList.push(promenu.value);
+      promenu.value = '';
+    }
+  }
+
+  onDelete(del: number) {
+    this.menuList.splice(del, 1);
+  }
+}
+
+
+
+
+
+//admin.component.html
+<header *ngIf="show">
+  <nav class="navbar ">
+    <ul class="nav navbar-nav">
+      <li>
+        <a *ngFor="let route of routes" [routerLink]="route.url">{{
+          route.linkName
+        }}</a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<!--<h1>Admin</h1>-->
+
+<router-outlet></router-outlet>
+
+
+
+
+//admin.component.ts
+import { Component, Input, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-admin',
+  templateUrl: './admin.component.html',
+  styleUrls: ['./admin.component.css'],
+})
+export class AdminComponent implements OnInit {
+  show = false;
+  routes = [
+    { linkName: 'menu', url: 'admin/menu' },
+    { linkName: 'restaurent', url: 'admin/restaurent' },
+  ];
+
+  constructor() {}
+
+  ngOnInit(): void {}
+  displayRoute() {
+    this.show = !this.show;
+  }
+}
+
+
+
+
+

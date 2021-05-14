@@ -1,0 +1,239 @@
+//app.component.html
+<app-advertform></app-advertform>
+<hr />
+<app-advert-table></app-advert-table>
+
+
+//app.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  
+}
+
+
+
+//app.module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { AdvertformComponent } from './advertform/advertform.component';
+
+import { FormsModule } from '@angular/forms';
+import { AdvertTableComponent } from './advert-table/advert-table.component';
+import { HttpClientModule} from '@angular/common/http';
+//import {EditproductComponent} from ',/editproduct/editproduct.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    AdvertformComponent,
+    AdvertTableComponent
+   // EditproductComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,  
+    FormsModule,
+    HttpClientModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+
+
+//advertform.component.html
+<head>
+  <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" 
+integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+</head>
+<div class="container-fluids">
+
+    <h1>Advertisement-Forms-Component</h1>
+
+    <form #f="ngForm" (ngSubmit)="data(f)" novalidate>
+        <hr />
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" class="form-control" name="title" [(ngModel)]="userModel.title">
+        </div>
+ 
+        <br>
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" class="form-control" name="userName" [(ngModel)]="userModel.name">
+        </div>
+        <br>
+        <div class="form-group">
+          <select class="custom-select" name="category" [(ngModel)]="userModel.category">
+            <option value="">Select category</option>
+            <option *ngFor="let category of categories">
+              {{category}}
+            </option>
+          </select>
+        </div>
+        <br>
+        <div class="form-group">
+            <label>Description</label>
+            <input type="text" class="form-control" name="description" [(ngModel)]="userModel.description">
+        </div>
+        <br>
+        <button  class="btn btn-primary" type="submit">Submit Form</button>
+    </form>
+  </div>
+
+
+<br> 
+
+
+  <!--<table border="1" cellspacing="2" cellpadding="5" width="100%">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Name</th>
+            <th>category</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+     <tbody>
+      <tr ng-repeat ="fields in personalInfoForm">
+            <td>{{ fields.FirstName }}</td>
+            <td>{{ fields.LastName }}</td>
+            <td>{{ fields.Age }}</td>
+            <td>{{ fields.HighestQualification }}</td>
+            <td>{{ fields.InstituteName }}</td>
+        </tr> 
+    </tbody>
+</table>
+</section> =Form-Table Section End/= -->
+
+
+
+
+//advertform.component.ts
+import { Component} from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { User } from './user';
+//import {SiblingService} from '../sibling.service';
+//import {Output,EventEmitter} from '@angular/core';
+
+@Component({
+  selector: 'app-advertform',
+  templateUrl: './advertform.component.html',
+  styleUrls: ['./advertform.component.css']
+})
+export class AdvertformComponent {
+
+  categories = ['Furniture','Hardware','Mobile'];
+  
+ userModel = new User('','Megha','','');
+
+arraydata:FormData [] = [];
+data(f:NgForm){
+  //console.log(f.value);
+  this.arraydata.push(f.value);
+  //console.log(this.arraydata);
+}
+}  
+
+       
+
+
+//advert-table.component.html
+ <div class="table">
+     <table border="1" cellspacing="2" cellpadding="5" width="100%">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Name</th>
+            <th>category</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+     <tbody>
+      <tr *ngFor ='let tabrxd of tabrxd'>
+            <td>{{ tabrxd.title }}</td>
+            <td>{{ tabrxd.userName }}</td>
+            <td>{{ tabrxd.category }}</td>
+            <td>{{ tabrxd.description }}</td>
+            <td>
+               <!--<a href="#">
+                    edit
+                </a>&nbsp;<a href="#" (click)="deleteadv(tabrxd)">delete</a>-->
+            </td>
+        </tr> 
+    </tbody>
+</table>
+</div>
+
+
+
+
+//advert-table.component.ts
+import { Component, OnInit } from '@angular/core';
+//import{ Input} from '@angular/core';
+import { SiblingService } from '../sibling.service';
+
+
+@Component({
+  selector: 'app-advert-table',
+  templateUrl: './advert-table.component.html',
+  styleUrls: ['./advert-table.component.css']
+})
+export class AdvertTableComponent implements OnInit {
+
+ //@Input() tabdata:any;
+  tabrxd : any;
+  constructor(private _sibService : SiblingService) { }
+
+  ngOnInit() {
+    this._sibService.rendertable.subscribe((arrmsg)=>{
+      console.log(arrmsg);
+      this.tabrxd=arrmsg;
+    });
+  }
+
+}
+
+
+
+//user.ts
+export class User {
+    constructor(
+        public title:string,
+        public name:string,
+        public category:string,
+        public description : string
+    ){}
+}
+ 
+
+
+//sibling.service.ts
+import { Injectable } from '@angular/core';
+import {Subject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SiblingService {
+
+  rendertable = new Subject();
+  constructor() { }
+
+ htmltab(arr:any){
+  this.rendertable.next(arr);
+  }
+}
